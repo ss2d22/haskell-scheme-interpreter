@@ -7,7 +7,7 @@ symbol :: Parser Char
 symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
 
 readExpr :: String -> String
-readExpr input = case parse symbol "soton" input of
+readExpr input = case parse (spaces >> symbol) "soton" input of
   Left err -> "No match: " ++ show err
   Right val -> "Found value"
 
