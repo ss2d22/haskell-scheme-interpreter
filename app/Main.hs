@@ -24,13 +24,38 @@ data GokuVal = Atom String
 
 {-
  - Checks if  the passed in character matches one of the symbols allowed in Scheme identifiers
--}
+ -}
 symbol :: Parser Char
 symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
 
 {-
+ - Parses a string between double quotes ignoring any double quotes 
+ - and stopping at the second double quote
+ -}
+parseString :: Parser GokuVal
+parseString = do
+                char '"'
+                x <- many (noneOf "\"")
+                char '"'
+                return $ String x
+
+{-
+ -
+ -}
+parseAtom :: Parser GokuVal
+parseAtom = do
+              first <- letter <|> symbol
+              rest <- many (letter <|> digit <|> symbol)
+              let atom = first:rest 
+              return $ case atom of
+                         "#t" -> Bool True 
+                         "#f" -> Bool False 
+                         _    -> Atom atom 
+
+
+{-
  - takes an input string, get's rid of spaces and checks if teh first charcter matches
--}
+ -}
 readExpr :: String -> String
 readExpr input = case parse (spaces >> symbol) "Goku" input of
   Left err -> "No match: " ++ show err
@@ -38,7 +63,7 @@ readExpr input = case parse (spaces >> symbol) "Goku" input of
 
 {-
  - skips spaces
--}
+ -}
 spaces :: Parser ()
 spaces = skipMany1 space
 
