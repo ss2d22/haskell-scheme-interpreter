@@ -35,10 +35,27 @@ symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
  -}
 parseString :: Parser LispVal
 parseString = do
-  char '"'
-  x <- many (noneOf "\"")
-  char '"'
+  _ <- char '"'
+  x <- many (escapedChar <|> noneOf "\"")
+  _ <- char '"'
   return $ String x
+
+{-
+ - adds escaped characters
+ - Ex 1 q2 & 3
+ -}
+escapedChar :: Parser Char
+escapedChar = do
+  _ <- char '\\'
+  c <- oneOf "\"nrt\\"
+  return $ case c of
+    '"'  -> '"'
+    'n'  -> '\n'
+    'r'  -> '\r'
+    't'  -> '\t'
+    '\\' -> '\\'
+    _    -> c
+
 
 {-
  - An atom is a letter or symbol, followed by any number of letters, digits, or symbols
