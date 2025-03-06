@@ -1,6 +1,8 @@
+module Main where 
 import Control.Monad
 import System.Environment
 import Text.ParserCombinators.Parsec hiding (spaces)
+import Data.Fixed (E0)
 
 {-
  - Data type for the parser to return
@@ -67,8 +69,20 @@ parseAtom = do
  -
  - we apply LiftM on (Number . read) and the result is fed into the returned function
  -}
+-- parseNumber :: Parser LispVal
+-- parseNumber = liftM (Number . read) $ many1 digit
+
+-- Ex 1 q1b
+-- same as above but using the sequencing operator (this looks the coolest so i am keeping this uncommented)
 parseNumber :: Parser LispVal
-parseNumber = liftM (Number . read) $ many1 digit
+parseNumber = many1 digit >>= \digits -> return $ Number (read digits)
+
+-- Ex 1 q1a
+-- same as above two but using do-notation
+-- parseNumber :: Parser LispVal
+-- parseNumber = do
+--   digits <- many1 digit
+--   return $ Number (read digits)
 
 parseExpr :: Parser LispVal
 parseExpr = parseAtom
@@ -90,4 +104,7 @@ spaces :: Parser ()
 spaces = skipMany1 space
 
 
-
+main :: IO ()
+main = do 
+         (expr:_) <- getArgs
+         putStrLn (readExpr expr)
